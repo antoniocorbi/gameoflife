@@ -14,12 +14,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #![allow(unused)]
 
+// -- Uses: ---------------------------------------------------------------
+use std::fmt;
+
+// -- Constants: ----------------------------------------------------------
+const USED: char = '*';
+const UNUSED: char = '·';
+
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;
 
 type Neighbor = (usize, usize);
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Cell {
     Used,
     Unused,
@@ -35,7 +42,7 @@ pub struct GameOfLife {
 // -- Impl: ---------------------------------------------------------------
 
 impl GameOfLife {
-    fn new(nrows: usize, ncols: usize) -> Self {
+    pub fn new(nrows: usize, ncols: usize) -> Self {
         let curr_gen = vec![vec![Cell::Unused; ncols]; nrows];
         let next_gen = vec![vec![Cell::Unused; ncols]; nrows];
 
@@ -92,6 +99,47 @@ impl GameOfLife {
 
         n
     }
+
+    pub fn num_neighbors(&self, x: usize, y: usize) -> usize {
+        let mut n: usize = 0;
+        let min_x = if x > 0 { x - 1 } else { 0 };
+        let min_y = if y > 0 { y - 1 } else { 0 };
+        let max_x = if x == self.ncols() - 1 {
+            self.ncols() - 1
+        } else {
+            x + 1
+        };
+        let max_y = if y == self.nrows() - 1 {
+            self.nrows() - 1
+        } else {
+            y + 1
+        };
+
+        for ix in min_x..=max_x {
+            for iy in min_y..=max_y {
+                if ix != x || iy != y {
+                    n += 1;
+                }
+            }
+        }
+
+        // dbg!(&n);
+
+        n
+    }
+}
+
+impl fmt::Display for GameOfLife {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Escribimos en el 'buffer' f la representación deseada
+        self.curr_gen.iter().for_each(|v| {
+            v.iter().for_each(|cell| {
+                write!(f, "{}", if *cell == Cell::Used { USED } else { UNUSED });
+            });
+            writeln!(f);
+        });
+        Ok(())
+    }
 }
 
 // -- Tests: --------------------------------------------------------------
@@ -114,6 +162,14 @@ mod tests {
     }
 
     #[test]
+    fn test_num_neighbors00() {
+        let gol = GameOfLife::new(20, 30);
+        let n = gol.num_neighbors(0, 0);
+
+        assert_eq!(n, 3);
+    }
+
+    #[test]
     fn test_neighbors00_len() {
         let gol = GameOfLife::new(20, 30);
         let nb = gol.neighbors(0, 0);
@@ -128,6 +184,14 @@ mod tests {
         let expected = vec![(0, 1), (1, 0), (1, 1)];
 
         assert_eq!(nb, expected);
+    }
+
+    #[test]
+    fn test_num_neighbors11() {
+        let gol = GameOfLife::new(20, 30);
+        let n = gol.num_neighbors(1, 1);
+
+        assert_eq!(n, 8);
     }
 
     #[test]
@@ -157,6 +221,14 @@ mod tests {
     }
 
     #[test]
+    fn test_num_neighbors52() {
+        let gol = GameOfLife::new(5, 6);
+        let n = gol.num_neighbors(5, 2);
+
+        assert_eq!(n, 5);
+    }
+
+    #[test]
     fn test_neighbors52_len() {
         let gol = GameOfLife::new(5, 6);
         let nb = gol.neighbors(5, 2);
@@ -171,5 +243,56 @@ mod tests {
         let expected = vec![(4, 1), (4, 2), (4, 3), (5, 1), (5, 3)];
 
         assert_eq!(nb, expected);
+    }
+
+    #[test]
+    fn test_neighbors50_items() {
+        let gol = GameOfLife::new(5, 6);
+        let nb = gol.neighbors(5, 0);
+        let expected = vec![(4, 0), (4, 1), (5, 1)];
+
+        assert_eq!(nb, expected);
+    }
+
+    #[test]
+    fn test_num_neighbors50() {
+        let gol = GameOfLife::new(5, 6);
+        let n = gol.num_neighbors(5, 0);
+
+        assert_eq!(n, 3);
+    }
+
+    #[test]
+    fn test_neighbors04_items() {
+        let gol = GameOfLife::new(5, 6);
+        let nb = gol.neighbors(0, 4);
+        let expected = vec![(0, 3), (1, 3), (1, 4)];
+
+        assert_eq!(nb, expected);
+    }
+
+    #[test]
+    fn test_num_neighbors04() {
+        let gol = GameOfLife::new(5, 6);
+        let n = gol.num_neighbors(0, 4);
+
+        assert_eq!(n, 3);
+    }
+
+    #[test]
+    fn test_neighbors54_items() {
+        let gol = GameOfLife::new(5, 6);
+        let nb = gol.neighbors(5, 4);
+        let expected = vec![(4, 3), (4, 4), (5, 3)];
+
+        assert_eq!(nb, expected);
+    }
+
+    #[test]
+    fn test_num_neighbors54() {
+        let gol = GameOfLife::new(5, 6);
+        let n = gol.num_neighbors(5, 4);
+
+        assert_eq!(n, 3);
     }
 }
