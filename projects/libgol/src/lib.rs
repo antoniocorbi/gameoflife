@@ -17,7 +17,7 @@
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;
 
-type Neighbour = (usize, usize);
+type Neighbor = (usize, usize);
 
 #[derive(Clone, Copy)]
 pub enum Cell {
@@ -60,7 +60,7 @@ impl GameOfLife {
         self.curr_gen[y][x]
     }
 
-    pub fn neighbours(&self, x: usize, y: usize) -> Vec<Neighbour> {
+    pub fn neighbors(&self, x: usize, y: usize) -> Vec<Neighbor> {
         let mut n = vec![];
         let min_x = if x > 0 { x - 1 } else { 0 };
         let min_y = if y > 0 { y - 1 } else { 0 };
@@ -114,34 +114,34 @@ mod tests {
     }
 
     #[test]
-    fn test_neighbours00_len() {
+    fn test_neighbors00_len() {
         let gol = GameOfLife::new(20, 30);
-        let nb = gol.neighbours(0, 0);
+        let nb = gol.neighbors(0, 0);
 
         assert_eq!(nb.len(), 3);
     }
 
     #[test]
-    fn test_neighbours00_items() {
+    fn test_neighbors00_items() {
         let gol = GameOfLife::new(20, 30);
-        let nb = gol.neighbours(0, 0);
+        let nb = gol.neighbors(0, 0);
         let expected = vec![(0, 1), (1, 0), (1, 1)];
 
         assert_eq!(nb, expected);
     }
 
     #[test]
-    fn test_neighbours11_len() {
+    fn test_neighbors11_len() {
         let gol = GameOfLife::new(20, 30);
-        let nb = gol.neighbours(1, 1);
+        let nb = gol.neighbors(1, 1);
 
         assert_eq!(nb.len(), 8);
     }
 
     #[test]
-    fn test_neighbours11_items() {
+    fn test_neighbors11_items() {
         let gol = GameOfLife::new(20, 30);
-        let nb = gol.neighbours(1, 1);
+        let nb = gol.neighbors(1, 1);
         let expected = vec![
             (0, 0),
             (0, 1),
@@ -157,17 +157,17 @@ mod tests {
     }
 
     #[test]
-    fn test_neighbours52_len() {
+    fn test_neighbors52_len() {
         let gol = GameOfLife::new(5, 6);
-        let nb = gol.neighbours(5, 2);
+        let nb = gol.neighbors(5, 2);
 
         assert_eq!(nb.len(), 5);
     }
 
     #[test]
-    fn test_neighbours52_items() {
+    fn test_neighbors52_items() {
         let gol = GameOfLife::new(5, 6);
-        let nb = gol.neighbours(5, 2);
+        let nb = gol.neighbors(5, 2);
         let expected = vec![(4, 1), (4, 2), (4, 3), (5, 1), (5, 3)];
 
         assert_eq!(nb, expected);
