@@ -16,10 +16,16 @@
 
 // -- Uses: ---------------------------------------------------------------
 use std::fmt;
+// The prelude import enables methods we use below, specifically
+// Rng::random, Rng::sample, SliceRandom::shuffle and IndexedRandom::choose.
+use rand::prelude::*;
+// For file saving/loading
+use std::fs::File;
+use std::io::{self, BufRead, BufReader, Write};
 
 // -- Constants: ----------------------------------------------------------
-const USED: char = '*';
-const UNUSED: char = '·';
+const USED_CHAR: char = '*';
+const UNUSED_CHAR: char = '·';
 
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;
@@ -57,6 +63,12 @@ impl GameOfLife {
         self.curr_gen[0].len()
     }
 
+    fn resize_next_gen(&mut self) {
+        self.next_gen.clear();
+        self.next_gen.shrink_to_fit();
+        self.next_gen = vec![vec![Cell::Unused; self.ncols()]; self.nrows()];
+    }
+
     pub fn set_cell(&mut self, x: usize, y: usize, status: Cell) {
         assert!(x < self.ncols() && y < self.nrows());
         self.curr_gen[y][x] = status;
@@ -65,6 +77,22 @@ impl GameOfLife {
     pub fn cell(&mut self, x: usize, y: usize) -> Cell {
         assert!(x < self.ncols() && y < self.nrows());
         self.curr_gen[y][x]
+    }
+
+    pub fn random_fill(&mut self, p: f64) {
+        assert!(p >= 0.0 && p <= 1.0); // Probability 0%..100%
+
+        let mut rng = rand::rng(); // Get an RNG:
+
+        for y in 0..self.nrows() {
+            for x in 0..self.ncols() {
+                if rng.random_bool(p) {
+                    self.set_cell(x, y, Cell::Used);
+                } else {
+                    self.set_cell(x, y, Cell::Unused);
+                }
+            }
+        }
     }
 
     pub fn neighbors(&self, x: usize, y: usize) -> Vec<Neighbor> {
@@ -127,6 +155,57 @@ impl GameOfLife {
 
         n
     }
+
+    /// Cada fila de la matriz será una línea en el archivo.
+    pub fn save(&self, path: &str) -> io::Result<()> {
+        let mut file = File::create(path)?;
+
+        for row in &self.curr_gen {
+            let line: String = row
+                .iter()
+                .map(|cell| {
+                    if *cell == Cell::Used {
+                        USED_CHAR
+                    } else {
+                        // UNUSED_CHAR
+                        ' '
+                    }
+                })
+                .collect();
+            writeln!(file, "{}", line)?;
+        }
+
+        Ok(())
+    }
+
+    /// Lee un archivo y lo convierte en una Matrix.
+    /// Cualquier carácter que no sea un espacio en blanco se interpreta como Cell::Used.
+    pub fn load(&mut self, path: &str) -> io::Result<()> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let mut matrix = Vec::new();
+        let unused = ' '; // UNUSED_CHAR
+
+        for line in reader.lines() {
+            let line = line?;
+            let row: Vec<Cell> = line
+                .chars()
+                .map(|c| {
+                    if c == unused {
+                        Cell::Unused
+                    } else {
+                        Cell::Used
+                    }
+                })
+                .collect();
+            matrix.push(row);
+        }
+
+        self.curr_gen = matrix;
+        self.resize_next_gen();
+
+        Ok(())
+    }
 }
 
 impl fmt::Display for GameOfLife {
@@ -134,7 +213,15 @@ impl fmt::Display for GameOfLife {
         // Escribimos en el 'buffer' f la representación deseada
         self.curr_gen.iter().for_each(|v| {
             v.iter().for_each(|cell| {
-                write!(f, "{}", if *cell == Cell::Used { USED } else { UNUSED });
+                write!(
+                    f,
+                    "{}",
+                    if *cell == Cell::Used {
+                        USED_CHAR
+                    } else {
+                        UNUSED_CHAR
+                    }
+                );
             });
             writeln!(f);
         });
