@@ -120,7 +120,9 @@ impl GameOfLife {
         for ix in min_x..=max_x {
             for iy in min_y..=max_y {
                 if ix != x || iy != y {
-                    n.push((ix, iy));
+                    if self.curr_gen[iy][ix] == Cell::Used {
+                        n.push((ix, iy));
+                    }
                 }
             }
         }
@@ -147,10 +149,19 @@ impl GameOfLife {
             y + 1
         };
 
+        // if x == 0 && y == 0 {
+        //     dbg!(min_x);
+        //     dbg!(min_y);
+        //     dbg!(max_x);
+        //     dbg!(max_y);
+        // }
+
         for ix in min_x..=max_x {
             for iy in min_y..=max_y {
                 if ix != x || iy != y {
-                    n += 1;
+                    if self.curr_gen[iy][ix] == Cell::Used {
+                        n += 1;
+                    }
                 }
             }
         }
@@ -210,6 +221,54 @@ impl GameOfLife {
         self.resize_next_gen();
 
         Ok(())
+    }
+
+    // - Nace: Si una célula muerta tiene exactamente 3 células vecinas vivas "nace" (es decir, al turno siguiente estará viva).
+    //
+    // - Muere: una célula viva puede morir por uno de 2 casos:
+    //     Sobrepoblación: si tiene más de tres vecinos alrededor.
+    //     Aislamiento: si tiene solo un vecino alrededor o ninguno.
+    //
+    // - Vive: una célula se mantiene viva si tiene 2 o 3 vecinos a su alrededor.
+
+    // Example:
+    // -----------------------------
+    // 1   *.*.**..**   | .........*
+    // 2   *.*.****.*   | *.........
+    // 3   ***..**.**   | ..........
+    // 4   ..*.*....*   | *.........
+    // 5   .*.****..*   | ..........
+    // 6   .*******.*   | *.........
+    // 7   **.*******   | *.........
+    // 8   *.**...**.   | *.........
+    // 9   .*.**.**.*   | *.........
+    // 10  *****.****   | *........*
+    // -----------------------------
+    pub fn compute_next_gen(&mut self) {
+        for y in 0..self.nrows() {
+            for x in 0..self.ncols() {
+                let nn = self.num_neighbors(x, y);
+                // if x == 7 && y == 0 {
+                //     println!("0_7nn = {nn}");
+                // }
+                match self.curr_gen[y][x] {
+                    Cell::Used => {
+                        if nn == 2 || nn == 3 {
+                            self.next_gen[y][x] = Cell::Used;
+                        } else if nn > 3 || nn < 2 {
+                            self.next_gen[y][x] = Cell::Unused;
+                        }
+                    }
+                    Cell::Unused => {
+                        if nn == 3 {
+                            // New cell on next_gen
+                            self.next_gen[y][x] = Cell::Used;
+                        }
+                    }
+                }
+            }
+        }
+        self.curr_gen = self.next_gen.clone();
     }
 }
 

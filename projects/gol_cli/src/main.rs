@@ -19,8 +19,28 @@ fn load_test() {
     gol.load("/home/acorbi/gol-random.txt");
     println!("File loaded.");
     println!("{}\n", gol);
+
+    for g in 0..10 {
+        println!("Evolve:");
+        gol.compute_next_gen();
+        println!("{}\n----------------", gol);
+    }
+    // println!("Evolve:");
+    // gol.compute_next_gen();
+    // println!("{}\n", gol);
+}
+
+fn random_test() {
+    let mut gol = GameOfLife::new(10, 10);
+    gol.random_fill(0.3);
+    println!("Initial Pop.:\n{}\n", gol);
+    for g in 0..10 {
+        println!("Evolve:");
+        gol.compute_next_gen();
+        println!("{}\n----------------", gol);
+    }
 }
 
 fn main() {
-    load_test();
+    random_test();
 }
