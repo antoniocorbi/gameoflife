@@ -96,6 +96,8 @@ impl GameOfLife {
     }
 
     pub fn neighbors(&self, x: usize, y: usize) -> Vec<Neighbor> {
+        assert!(x < self.ncols() && y < self.nrows());
+
         let mut n = vec![];
         let min_x = if x > 0 { x - 1 } else { 0 };
         let min_y = if y > 0 { y - 1 } else { 0 };
@@ -129,6 +131,8 @@ impl GameOfLife {
     }
 
     pub fn num_neighbors(&self, x: usize, y: usize) -> usize {
+        assert!(x < self.ncols() && y < self.nrows());
+
         let mut n: usize = 0;
         let min_x = if x > 0 { x - 1 } else { 0 };
         let min_y = if y > 0 { y - 1 } else { 0 };
@@ -159,6 +163,7 @@ impl GameOfLife {
     /// Cada fila de la matriz será una línea en el archivo.
     pub fn save(&self, path: &str) -> io::Result<()> {
         let mut file = File::create(path)?;
+        let unused = ' '; // UNUSED_CHAR
 
         for row in &self.curr_gen {
             let line: String = row
@@ -168,7 +173,7 @@ impl GameOfLife {
                         USED_CHAR
                     } else {
                         // UNUSED_CHAR
-                        ' '
+                        unused
                     }
                 })
                 .collect();
