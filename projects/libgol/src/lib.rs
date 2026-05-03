@@ -25,7 +25,7 @@ use std::io::{self, BufRead, BufReader, Write};
 
 // -- Constants: ----------------------------------------------------------
 const USED_CHAR: char = '@';
-const UNUSED_CHAR: char = ' ';
+const UNUSED_CHAR: char = '_';
 
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;
@@ -43,6 +43,8 @@ type Matrix = Vec<Vec<Cell>>;
 pub struct GameOfLife {
     curr_gen: Matrix,
     next_gen: Matrix,
+    used_char: char,
+    unused_char: char,
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -51,8 +53,20 @@ impl GameOfLife {
     pub fn new(nrows: usize, ncols: usize) -> Self {
         let curr_gen = vec![vec![Cell::Unused; ncols]; nrows];
         let next_gen = vec![vec![Cell::Unused; ncols]; nrows];
+        let used_char = USED_CHAR;
+        let unused_char = UNUSED_CHAR;
 
-        GameOfLife { curr_gen, next_gen }
+        GameOfLife {
+            curr_gen,
+            next_gen,
+            used_char,
+            unused_char,
+        }
+    }
+
+    pub fn set_visuals(&mut self, used: char, unused: char) {
+        self.used_char = used;
+        self.unused_char = unused;
     }
 
     pub fn nrows(&self) -> usize {
@@ -174,14 +188,14 @@ impl GameOfLife {
     /// Cada fila de la matriz será una línea en el archivo.
     pub fn save(&self, path: &str) -> io::Result<()> {
         let mut file = File::create(path)?;
-        let unused = ' '; // UNUSED_CHAR
+        let unused = ' '; // self.UNUSED_CHAR
 
         for row in &self.curr_gen {
             let line: String = row
                 .iter()
                 .map(|cell| {
                     if *cell == Cell::Used {
-                        USED_CHAR
+                        self.used_char
                     } else {
                         // UNUSED_CHAR
                         unused
@@ -200,7 +214,7 @@ impl GameOfLife {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
         let mut matrix = Vec::new();
-        let unused = ' '; // UNUSED_CHAR
+        let unused = ' '; // self.UNUSED_CHAR
 
         for line in reader.lines() {
             let line = line?;
@@ -230,20 +244,6 @@ impl GameOfLife {
     //     Aislamiento: si tiene solo un vecino alrededor o ninguno.
     //
     // - Vive: una célula se mantiene viva si tiene 2 o 3 vecinos a su alrededor.
-
-    // Example:
-    // -----------------------------
-    // 1   *.*.**..**   | .........*
-    // 2   *.*.****.*   | *.........
-    // 3   ***..**.**   | ..........
-    // 4   ..*.*....*   | *.........
-    // 5   .*.****..*   | ..........
-    // 6   .*******.*   | *.........
-    // 7   **.*******   | *.........
-    // 8   *.**...**.   | *.........
-    // 9   .*.**.**.*   | *.........
-    // 10  *****.****   | *........*
-    // -----------------------------
     pub fn compute_next_gen(&mut self) {
         for y in 0..self.nrows() {
             for x in 0..self.ncols() {
@@ -281,9 +281,9 @@ impl fmt::Display for GameOfLife {
                     f,
                     "{}",
                     if *cell == Cell::Used {
-                        USED_CHAR
+                        self.used_char
                     } else {
-                        UNUSED_CHAR
+                        self.unused_char
                     }
                 );
             });

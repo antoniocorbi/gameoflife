@@ -71,10 +71,11 @@ fn glider_test() {
     const X: usize = 20;
     const Y: usize = 0;
 
-    let mut stdout = std::io::stdout();
+    let stdout = std::io::stdout();
     let frame_duration = std::time::Duration::from_millis(MILLIS);
 
     let mut gol = GameOfLife::new(NROWS, NCOLS);
+    gol.set_visuals('o', '·');
 
     gol.set_cell(X, Y, Cell::Used);
     gol.set_cell(X + 1, Y + 1, Cell::Used);
