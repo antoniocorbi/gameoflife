@@ -41,6 +41,38 @@ fn random_test() {
     }
 }
 
+fn wiki_test() {
+    let mut gol = GameOfLife::new(20, 20);
+
+    gol.set_cell(2, 2, Cell::Used);
+    gol.set_cell(3, 2, Cell::Used);
+    gol.set_cell(3, 3, Cell::Used);
+    gol.set_cell(3, 4, Cell::Used);
+    gol.set_cell(4, 3, Cell::Used);
+    println!("Initial Pop.:\n{}\n", gol);
+    println!("Evolve:");
+    for g in 0..40 {
+        gol.compute_next_gen();
+        println!("{}", gol);
+    }
+}
+
+fn glider_test() {
+    let mut gol = GameOfLife::new(20, 20);
+
+    gol.set_cell(2, 2, Cell::Used);
+    gol.set_cell(3, 3, Cell::Used);
+    gol.set_cell(1, 4, Cell::Used);
+    gol.set_cell(2, 4, Cell::Used);
+    gol.set_cell(3, 4, Cell::Used);
+    println!("Initial Pop.:\n{}\n", gol);
+    println!("Evolve:");
+    for g in 0..50 {
+        gol.compute_next_gen();
+        println!("{}", gol);
+    }
+}
+
 fn main() {
-    random_test();
+    glider_test();
 }
