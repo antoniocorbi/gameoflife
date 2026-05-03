@@ -24,8 +24,8 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 
 // -- Constants: ----------------------------------------------------------
-const USED_CHAR: char = '*';
-const UNUSED_CHAR: char = '·';
+const USED_CHAR: char = '@';
+const UNUSED_CHAR: char = ' ';
 
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;

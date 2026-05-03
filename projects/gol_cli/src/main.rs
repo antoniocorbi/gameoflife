@@ -64,7 +64,7 @@ fn wiki_test() {
 
 fn glider_test() {
     use std::io::Write;
-    const MILLIS: u64 = 30;
+    const MILLIS: u64 = 45;
     const GENERATIONS: u64 = 140;
     const NROWS: usize = 40;
     const NCOLS: usize = 80;
@@ -73,6 +73,7 @@ fn glider_test() {
 
     let mut stdout = std::io::stdout();
     let frame_duration = std::time::Duration::from_millis(MILLIS);
+
     let mut gol = GameOfLife::new(NROWS, NCOLS);
 
     gol.set_cell(X, Y, Cell::Used);
@@ -90,7 +91,7 @@ fn glider_test() {
         print!("{}{}", MOVE11, gol);
 
         // 3. Forzamos la salida y esperamos
-        stdout.flush().unwrap();
+        //stdout.flush().unwrap();
         std::thread::sleep(frame_duration);
     }
     print!("{}", SHOWCRSR);
