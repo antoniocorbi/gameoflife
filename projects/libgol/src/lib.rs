@@ -30,6 +30,11 @@ const UNUSED_CHAR: char = '_';
 // -- Types: --------------------------------------------------------------
 // type Cell = bool;
 
+pub enum Figure {
+    Block,   // 2x2
+    Blinker, // 1x3
+}
+
 type Neighbor = (usize, usize);
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -45,6 +50,13 @@ pub struct GameOfLife {
     next_gen: Matrix,
     used_char: char,
     unused_char: char,
+}
+
+// -- Traits: -------------------------------------------------------------
+pub trait FigureExt {
+    fn insert_figure(&mut self, f: Figure, x: usize, y: usize);
+    fn block(&mut self, x: usize, y: usize);
+    fn blinker(&mut self, x: usize, y: usize);
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -270,6 +282,36 @@ impl GameOfLife {
         }
         self.curr_gen = self.next_gen.clone();
     }
+}
+
+impl FigureExt for GameOfLife {
+    fn insert_figure(&mut self, f: Figure, x: usize, y: usize) {
+        match f {
+            Figure::Block => self.block(x, y),
+            Figure::Blinker => self.blinker(x, y),
+        }
+    }
+
+    fn block(&mut self, x: usize, y: usize) {
+        let w = 2; // width
+        let h = 2; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it feets then place it
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x, y + 1, Cell::Used);
+            self.set_cell(x + 1, y + 1, Cell::Used);
+        }
+        // else {
+        //     eprintln!("Unable to insert Block.");
+        // }
+    }
+
+    fn blinker(&mut self, x: usize, y: usize) {}
 }
 
 impl fmt::Display for GameOfLife {

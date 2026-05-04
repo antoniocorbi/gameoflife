@@ -1,4 +1,4 @@
-use libgol::{Cell, GameOfLife};
+use libgol::{Cell, FigureExt, GameOfLife};
 
 const CLS: &str = "\x1B[2J";
 const MOVE11: &str = "\x1B[1;1H";
@@ -98,6 +98,18 @@ fn glider_test() {
     print!("{}", SHOWCRSR);
 }
 
+fn figure_test() {
+    use libgol::Figure;
+    let mut gol = GameOfLife::new(20, 20);
+
+    gol.insert_figure(Figure::Block, 2, 2);
+    gol.insert_figure(Figure::Block, 12, 10);
+    gol.insert_figure(Figure::Block, 20, 2);
+    gol.insert_figure(Figure::Block, 18, 14);
+
+    println!("{}", gol);
+}
+
 fn main() {
-    glider_test();
+    figure_test();
 }
