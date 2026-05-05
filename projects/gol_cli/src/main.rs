@@ -107,6 +107,12 @@ fn figure_test() {
     gol.insert_figure(Figure::Block, 20, 2);
     gol.insert_figure(Figure::Block, 18, 14);
 
+    gol.insert_figure(Figure::Blinker, 10, 0);
+    gol.insert_figure(Figure::Blinker, 15, 3);
+    gol.insert_figure(Figure::Blinker, 10, 14);
+    gol.insert_figure(Figure::Blinker, 19, 17);
+    gol.insert_figure(Figure::Blinker, 11, 20);
+
     println!("{}", gol);
 }
 

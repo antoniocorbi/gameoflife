@@ -300,7 +300,7 @@ impl FigureExt for GameOfLife {
         let nc = self.ncols();
 
         if x + (w - 1) < nc && y + (h - 1) < nr {
-            // If it feets then place it
+            // If it fits -> place it
             self.set_cell(x, y, Cell::Used);
             self.set_cell(x + 1, y, Cell::Used);
             self.set_cell(x, y + 1, Cell::Used);
@@ -311,7 +311,20 @@ impl FigureExt for GameOfLife {
         // }
     }
 
-    fn blinker(&mut self, x: usize, y: usize) {}
+    fn blinker(&mut self, x: usize, y: usize) {
+        let w = 1; // width
+        let h = 2; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x, y + 1, Cell::Used);
+            self.set_cell(x, y + 2, Cell::Used);
+        }
+    }
 }
 
 impl fmt::Display for GameOfLife {
