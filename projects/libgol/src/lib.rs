@@ -31,8 +31,11 @@ const UNUSED_CHAR: char = '_';
 // type Cell = bool;
 
 pub enum Figure {
-    Block,   // 2x2
-    Blinker, // 1x3
+    // WxH
+    Block,      // 2x2
+    Blinker,    // 1x3
+    Toad,       // 4x2
+    Lighthouse, // 4x4
 }
 
 type Neighbor = (usize, usize);
@@ -57,6 +60,8 @@ pub trait FigureExt {
     fn insert_figure(&mut self, f: Figure, x: usize, y: usize);
     fn block(&mut self, x: usize, y: usize);
     fn blinker(&mut self, x: usize, y: usize);
+    fn toad(&mut self, x: usize, y: usize);
+    fn lighthouse(&mut self, x: usize, y: usize);
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -289,6 +294,8 @@ impl FigureExt for GameOfLife {
         match f {
             Figure::Block => self.block(x, y),
             Figure::Blinker => self.blinker(x, y),
+            Figure::Toad => self.toad(x, y),
+            Figure::Lighthouse => self.lighthouse(x, y),
         }
     }
 
@@ -323,6 +330,45 @@ impl FigureExt for GameOfLife {
             self.set_cell(x, y, Cell::Used);
             self.set_cell(x, y + 1, Cell::Used);
             self.set_cell(x, y + 2, Cell::Used);
+        }
+    }
+
+    fn toad(&mut self, x: usize, y: usize) {
+        let w = 4; // width
+        let h = 2; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x, y + 1, Cell::Used);
+            self.set_cell(x + 1, y + 1, Cell::Used);
+            self.set_cell(x + 2, y + 1, Cell::Used);
+        }
+    }
+
+    fn lighthouse(&mut self, x: usize, y: usize) {
+        let w = 4; // width
+        let h = 4; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x, y + 1, Cell::Used);
+            self.set_cell(x + 1, y + 1, Cell::Used);
+            self.set_cell(x + 2, y + 2, Cell::Used);
+            self.set_cell(x + 3, y + 2, Cell::Used);
+            self.set_cell(x + 2, y + 2, Cell::Used);
+            self.set_cell(x + 2, y + 3, Cell::Used);
+            self.set_cell(x + 3, y + 3, Cell::Used);
         }
     }
 }
