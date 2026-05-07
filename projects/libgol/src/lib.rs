@@ -36,6 +36,8 @@ pub enum Figure {
     Blinker,    // 1x3
     Toad,       // 4x2
     Lighthouse, // 4x4
+    Pulsar,     // 13x13
+    PentaDec,   // 5x12
 }
 
 type Neighbor = (usize, usize);
@@ -62,6 +64,8 @@ pub trait FigureExt {
     fn blinker(&mut self, x: usize, y: usize);
     fn toad(&mut self, x: usize, y: usize);
     fn lighthouse(&mut self, x: usize, y: usize);
+    fn pulsar(&mut self, x: usize, y: usize);
+    fn penta_dec(&mut self, x: usize, y: usize);
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -296,6 +300,163 @@ impl FigureExt for GameOfLife {
             Figure::Blinker => self.blinker(x, y),
             Figure::Toad => self.toad(x, y),
             Figure::Lighthouse => self.lighthouse(x, y),
+            Figure::Pulsar => self.pulsar(x, y),
+            Figure::PentaDec => self.penta_dec(x, y),
+        }
+    }
+
+    fn penta_dec(&mut self, x: usize, y: usize) {
+        let w = 5; // width
+        let h = 12; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            // Line 9
+            y += 7;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            // Line 4
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 5
+            y += 1;
+            self.set_cell(x + 2, y, Cell::Used);
+        } else {
+            eprintln!("Unable to insert Pulsar.");
+        }
+    }
+
+    fn pulsar(&mut self, x: usize, y: usize) {
+        let w = 13; // width
+        let h = 13; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 12, y, Cell::Used);
+            // Line 3
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+            self.set_cell(x + 11, y, Cell::Used);
+            self.set_cell(x + 12, y, Cell::Used);
+            // Line 4
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 11, y, Cell::Used);
+            // Line 5
+            y += 1;
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+            // Line 6: Blank
+            // Line 7
+            y += 2;
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+            // Line 8
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 11, y, Cell::Used);
+            // Line 9
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+            self.set_cell(x + 11, y, Cell::Used);
+            self.set_cell(x + 12, y, Cell::Used);
+            // Line 10
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 7, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 12, y, Cell::Used);
+            // Line 11
+            y += 1;
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 8, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            // Line 12
+            y += 1;
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 9, y, Cell::Used);
+            self.set_cell(x + 10, y, Cell::Used);
+        } else {
+            eprintln!("Unable to insert Pulsar.");
         }
     }
 

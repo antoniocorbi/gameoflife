@@ -100,38 +100,40 @@ fn glider_test() {
 
 fn figure_test() {
     use libgol::Figure;
-    const MILLIS: u64 = 45;
-    const GENERATIONS: u64 = 40;
+    const MILLIS: u64 = 90;
+    const GENERATIONS: u64 = 140;
     let frame_duration = std::time::Duration::from_millis(MILLIS);
 
-    let mut gol = GameOfLife::new(20, 20);
+    let mut gol = GameOfLife::new(20, 50);
 
-    gol.insert_figure(Figure::Block, 2, 2);
-    //gol.insert_figure(Figure::Block, 12, 10);
-    gol.insert_figure(Figure::Block, 20, 2);
-    gol.insert_figure(Figure::Block, 18, 14);
-
-    gol.insert_figure(Figure::Blinker, 10, 0);
-    gol.insert_figure(Figure::Blinker, 15, 3);
-    gol.insert_figure(Figure::Blinker, 10, 14);
-    gol.insert_figure(Figure::Blinker, 19, 17);
-    gol.insert_figure(Figure::Blinker, 11, 20);
-
-    gol.insert_figure(Figure::Toad, 7, 9);
-    gol.insert_figure(Figure::Lighthouse, 4, 12);
+    // gol.insert_figure(Figure::Block, 2, 2);
+    // //gol.insert_figure(Figure::Block, 12, 10);
+    // gol.insert_figure(Figure::Block, 20, 2);
+    // gol.insert_figure(Figure::Block, 18, 14);
+    //
+    gol.insert_figure(Figure::Blinker, 20, 5);
+    gol.insert_figure(Figure::Blinker, 25, 9);
+    // gol.insert_figure(Figure::Blinker, 10, 14);
+    // gol.insert_figure(Figure::Blinker, 19, 17);
+    // gol.insert_figure(Figure::Blinker, 11, 20);
+    //
+    // gol.insert_figure(Figure::Toad, 7, 9);
+    // gol.insert_figure(Figure::Lighthouse, 4, 12);
+    //gol.insert_figure(Figure::Pulsar, 2, 2);
+    gol.insert_figure(Figure::PentaDec, 2, 2);
 
     println!("{}", gol);
 
-    print!("{}{}", HIDECRSR, CLS);
-    for _ in 0..GENERATIONS {
-        gol.compute_next_gen();
-        print!("{}{}", MOVE11, gol);
-
-        // 3. Forzamos la salida y esperamos
-        //stdout.flush().unwrap();
-        std::thread::sleep(frame_duration);
-    }
-    print!("{}", SHOWCRSR);
+    // print!("{}{}", HIDECRSR, CLS);
+    // for _ in 0..GENERATIONS {
+    //     gol.compute_next_gen();
+    //     print!("{}{}", MOVE11, gol);
+    //
+    //     // 3. Forzamos la salida y esperamos
+    //     //stdout.flush().unwrap();
+    //     std::thread::sleep(frame_duration);
+    // }
+    // print!("{}", SHOWCRSR);
 }
 
 fn main() {
