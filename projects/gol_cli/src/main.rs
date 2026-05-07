@@ -111,8 +111,8 @@ fn figure_test() {
     // gol.insert_figure(Figure::Block, 20, 2);
     // gol.insert_figure(Figure::Block, 18, 14);
     //
-    gol.insert_figure(Figure::Blinker, 20, 5);
-    gol.insert_figure(Figure::Blinker, 25, 9);
+    // gol.insert_figure(Figure::Blinker, 20, 5);
+    // gol.insert_figure(Figure::Blinker, 25, 9);
     // gol.insert_figure(Figure::Blinker, 10, 14);
     // gol.insert_figure(Figure::Blinker, 19, 17);
     // gol.insert_figure(Figure::Blinker, 11, 20);
@@ -121,6 +121,16 @@ fn figure_test() {
     // gol.insert_figure(Figure::Lighthouse, 4, 12);
     //gol.insert_figure(Figure::Pulsar, 2, 2);
     gol.insert_figure(Figure::PentaDec, 2, 2);
+    gol.insert_figure(Figure::Glider, 8, 14);
+
+    gol.insert_figure(Figure::SShip1, 12, 2);
+    gol.insert_figure(Figure::SShip2, 20, 2);
+    gol.insert_figure(Figure::SShip3, 30, 2);
+
+    gol.insert_figure(Figure::Hive, 12, 7);
+    gol.insert_figure(Figure::Pan, 20, 7);
+    gol.insert_figure(Figure::Boat, 30, 7);
+    gol.insert_figure(Figure::Bath, 40, 7);
 
     println!("{}", gol);
 

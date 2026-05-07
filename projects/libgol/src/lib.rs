@@ -32,12 +32,20 @@ const UNUSED_CHAR: char = '_';
 
 pub enum Figure {
     // WxH
-    Block,      // 2x2
     Blinker,    // 1x3
     Toad,       // 4x2
     Lighthouse, // 4x4
     Pulsar,     // 13x13
     PentaDec,   // 5x12
+    Glider,     // 3x3
+    SShip1,     // 5x4
+    SShip2,     // 6x4
+    SShip3,     // 7x4
+    Block,      // 2x2
+    Hive,       // 4x3
+    Pan,        // 4x4
+    Boat,       // 3x3
+    Bath,       // 3x3
 }
 
 type Neighbor = (usize, usize);
@@ -60,12 +68,20 @@ pub struct GameOfLife {
 // -- Traits: -------------------------------------------------------------
 pub trait FigureExt {
     fn insert_figure(&mut self, f: Figure, x: usize, y: usize);
-    fn block(&mut self, x: usize, y: usize);
     fn blinker(&mut self, x: usize, y: usize);
     fn toad(&mut self, x: usize, y: usize);
     fn lighthouse(&mut self, x: usize, y: usize);
     fn pulsar(&mut self, x: usize, y: usize);
     fn penta_dec(&mut self, x: usize, y: usize);
+    fn glider(&mut self, x: usize, y: usize);
+    fn sship1(&mut self, x: usize, y: usize);
+    fn sship2(&mut self, x: usize, y: usize);
+    fn sship3(&mut self, x: usize, y: usize);
+    fn block(&mut self, x: usize, y: usize);
+    fn hive(&mut self, x: usize, y: usize);
+    fn pan(&mut self, x: usize, y: usize);
+    fn boat(&mut self, x: usize, y: usize);
+    fn bath(&mut self, x: usize, y: usize);
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -297,11 +313,243 @@ impl FigureExt for GameOfLife {
     fn insert_figure(&mut self, f: Figure, x: usize, y: usize) {
         match f {
             Figure::Block => self.block(x, y),
+            Figure::Hive => self.hive(x, y),
+            Figure::Pan => self.pan(x, y),
+            Figure::Boat => self.boat(x, y),
+            Figure::Bath => self.bath(x, y),
             Figure::Blinker => self.blinker(x, y),
             Figure::Toad => self.toad(x, y),
             Figure::Lighthouse => self.lighthouse(x, y),
             Figure::Pulsar => self.pulsar(x, y),
             Figure::PentaDec => self.penta_dec(x, y),
+            Figure::Glider => self.glider(x, y),
+            Figure::SShip1 => self.sship1(x, y),
+            Figure::SShip2 => self.sship2(x, y),
+            Figure::SShip3 => self.sship3(x, y),
+        }
+    }
+
+    fn hive(&mut self, x: usize, y: usize) {
+        let w = 4; // width
+        let h = 3; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+        }
+    }
+
+    fn pan(&mut self, x: usize, y: usize) {
+        let w = 4; // width
+        let h = 4; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 3
+            y += 1;
+            self.set_cell(x + 2, y, Cell::Used);
+        }
+    }
+
+    fn boat(&mut self, x: usize, y: usize) {
+        let w = 3; // width
+        let h = 3; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+        }
+    }
+
+    fn bath(&mut self, x: usize, y: usize) {
+        let w = 3; // width
+        let h = 3; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 1, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+        }
+    }
+
+    fn sship1(&mut self, x: usize, y: usize) {
+        let w = 5; // width
+        let h = 4; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            // Line 3
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+        }
+    }
+
+    fn sship2(&mut self, x: usize, y: usize) {
+        let w = 6; // width
+        let h = 4; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            // Line 3
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+        }
+    }
+
+    fn sship3(&mut self, x: usize, y: usize) {
+        let w = 7; // width
+        let h = 4; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            self.set_cell(x + 6, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+            self.set_cell(x + 5, y, Cell::Used);
+            // Line 3
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            self.set_cell(x + 3, y, Cell::Used);
+            self.set_cell(x + 4, y, Cell::Used);
+        }
+    }
+
+    fn glider(&mut self, x: usize, y: usize) {
+        let w = 3; // width
+        let h = 3; // height
+
+        let nr = self.nrows();
+        let nc = self.ncols();
+
+        if x + (w - 1) < nc && y + (h - 1) < nr {
+            // If it fits -> place it
+            // Line 0
+            let mut y = y;
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 1
+            y += 1;
+            self.set_cell(x, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
+            // Line 2
+            y += 1;
+            self.set_cell(x + 1, y, Cell::Used);
+            self.set_cell(x + 2, y, Cell::Used);
         }
     }
 
