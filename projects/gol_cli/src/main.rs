@@ -100,8 +100,8 @@ fn glider_test() {
 
 fn figure_test() {
     use libgol::Figure;
-    const MILLIS: u64 = 90;
-    const GENERATIONS: u64 = 140;
+    const MILLIS: u64 = 70;
+    const GENERATIONS: u64 = 1200;
     let frame_duration = std::time::Duration::from_millis(MILLIS);
 
     let mut gol = GameOfLife::new(20, 50);
@@ -134,16 +134,16 @@ fn figure_test() {
 
     println!("{}", gol);
 
-    // print!("{}{}", HIDECRSR, CLS);
-    // for _ in 0..GENERATIONS {
-    //     gol.compute_next_gen();
-    //     print!("{}{}", MOVE11, gol);
-    //
-    //     // 3. Forzamos la salida y esperamos
-    //     //stdout.flush().unwrap();
-    //     std::thread::sleep(frame_duration);
-    // }
-    // print!("{}", SHOWCRSR);
+    print!("{}{}", HIDECRSR, CLS);
+    for _ in 0..GENERATIONS {
+        gol.compute_next_gen();
+        print!("{}{}", MOVE11, gol);
+
+        // 3. Forzamos la salida y esperamos
+        //stdout.flush().unwrap();
+        std::thread::sleep(frame_duration);
+    }
+    print!("{}", SHOWCRSR);
 }
 
 fn main() {
