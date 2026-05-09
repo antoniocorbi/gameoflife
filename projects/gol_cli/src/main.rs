@@ -101,10 +101,11 @@ fn glider_test() {
 fn figure_test() {
     use libgol::Figure;
     const MILLIS: u64 = 70;
-    const GENERATIONS: u64 = 1200;
+    const GENERATIONS: u64 = 300;
     let frame_duration = std::time::Duration::from_millis(MILLIS);
 
     let mut gol = GameOfLife::new(20, 50);
+    gol.set_visuals('*', '.');
 
     // gol.insert_figure(Figure::Block, 2, 2);
     // //gol.insert_figure(Figure::Block, 12, 10);

@@ -51,6 +51,7 @@ pub struct GameOfLife {
     next_gen: Matrix,
     used_char: char,
     unused_char: char,
+    ngen: usize,
 }
 
 // -- Impl: ---------------------------------------------------------------
@@ -61,13 +62,19 @@ impl GameOfLife {
         let next_gen = vec![vec![Cell::Unused; ncols]; nrows];
         let used_char = USED_CHAR;
         let unused_char = UNUSED_CHAR;
+        let ngen = 0;
 
         GameOfLife {
             curr_gen,
             next_gen,
             used_char,
             unused_char,
+            ngen,
         }
+    }
+
+    pub fn generations(&self) -> usize {
+        self.ngen
     }
 
     pub fn set_visuals(&mut self, used: char, unused: char) {
@@ -243,7 +250,9 @@ impl GameOfLife {
         Ok(())
     }
 
-    // - Nace: Si una célula muerta tiene exactamente 3 células vecinas vivas "nace" (es decir, al turno siguiente estará viva).
+    // - Nace: Si una célula muerta tiene exactamente 3 células
+    //   vecinas vivas "nace" (es decir, al turno siguiente estará
+    //   viva).
     //
     // - Muere: una célula viva puede morir por uno de 2 casos:
     //     Sobrepoblación: si tiene más de tres vecinos alrededor.
@@ -275,6 +284,7 @@ impl GameOfLife {
             }
         }
         self.curr_gen = self.next_gen.clone();
+        self.ngen += 1;
     }
 }
 
@@ -768,6 +778,7 @@ impl fmt::Display for GameOfLife {
             });
             writeln!(f);
         });
+        write!(f, "generation: {}", self.generations());
         Ok(())
     }
 }
