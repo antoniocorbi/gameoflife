@@ -1,4 +1,5 @@
 use libgol::{Cell, FigureExt, GameOfLife};
+use std::env;
 
 const CLS: &str = "\x1B[2J";
 const MOVE11: &str = "\x1B[1;1H";
@@ -98,10 +99,11 @@ fn glider_test() {
     print!("{}", SHOWCRSR);
 }
 
-fn figure_test() {
+fn figure_test(ng: u64) {
     use libgol::Figure;
     const MILLIS: u64 = 70;
-    const GENERATIONS: u64 = 300;
+    //const DEFAULT_GENERATIONS: u64 = 300;
+    let generations = ng;
     let frame_duration = std::time::Duration::from_millis(MILLIS);
 
     let mut gol = GameOfLife::new(20, 50);
@@ -136,7 +138,7 @@ fn figure_test() {
     println!("{}", gol);
 
     print!("{}{}", HIDECRSR, CLS);
-    for _ in 0..GENERATIONS {
+    for _ in 0..generations {
         gol.compute_next_gen();
         print!("{}{}", MOVE11, gol);
 
@@ -148,5 +150,13 @@ fn figure_test() {
 }
 
 fn main() {
-    figure_test();
+    let args: Vec<String> = env::args().collect();
+    if args.len() == 1 {
+        figure_test(0);
+    } else {
+        println!("arg[1]: {}", args[1]);
+        // Assume args[0] == ng desired
+        let ng = args[1].parse::<u64>().unwrap_or(0);
+        figure_test(ng);
+    }
 }
