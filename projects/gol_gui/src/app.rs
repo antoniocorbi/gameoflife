@@ -13,6 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// -- Constants: ----------------------------------------------------------
+const LOREM_IPSUM: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+const LOREM_IPSUM_LONG: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam various, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.";
+
 // -- Uses: ---------------------------------------------------------------
 use egui::{RichText, Style};
 //use delegate::delegate;
@@ -58,6 +65,35 @@ impl TemplateApp {
         }
     }
 
+    fn draw_grid(&mut self, painter: &egui::Painter, rect: egui::Rect) {
+        // 1. Gestionar grid-spacing muy pequeño
+        //let grid_spacing = self.grid_size * 3.0; // Distancia entre líneas
+        let grid_spacing = 10.0; // Distancia entre líneas
+        let grid_stroke = egui::Stroke::new(0.7, egui::Color32::LIGHT_BLUE); // Líneas finas y claras
+
+        // Líneas verticales
+        //let mut x = rect.left() + (grid_spacing - rect.left() % grid_spacing);
+        let mut x = rect.left();
+        while x <= rect.right() {
+            painter.line_segment(
+                [egui::pos2(x, rect.top()), egui::pos2(x, rect.bottom())],
+                grid_stroke,
+            );
+            x += grid_spacing;
+        }
+
+        // Líneas horizontales
+        //let mut y = rect.top() + (grid_spacing - rect.top() % grid_spacing);
+        let mut y = rect.top();
+        while y <= rect.bottom() {
+            painter.line_segment(
+                [egui::pos2(rect.left(), y), egui::pos2(rect.right(), y)],
+                grid_stroke,
+            );
+            y += grid_spacing;
+        }
+    }
+
     fn create_drawing_widget(&mut self, ui: &mut Ui) {
         const CANVAS_W: f32 = 800.0;
         const CANVAS_H: f32 = 600.0;
@@ -90,7 +126,7 @@ impl TemplateApp {
 
                         // Draw the GRID
                         // if self.grid {
-                        //     self.draw_grid(&painter, response.rect);
+                        self.draw_grid(&painter, response.rect);
                         // }
 
                         // 1. Comprobamos el click izquierdo
@@ -296,6 +332,17 @@ impl eframe::App for TemplateApp {
 
         ui.request_repaint();
     }
+}
+
+fn lorem_ipsum(ui: &mut egui::Ui) {
+    ui.with_layout(
+        egui::Layout::top_down(egui::Align::LEFT).with_cross_justify(true),
+        |ui| {
+            ui.label(egui::RichText::new(LOREM_IPSUM_LONG).small().weak());
+            ui.add(egui::Separator::default().grow(8.0));
+            ui.label(egui::RichText::new(LOREM_IPSUM_LONG).small().weak());
+        },
+    );
 }
 
 fn powered_by_egui_and_eframe(ui: &mut egui::Ui) {
