@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+alias cc := ccli
+alias cg := cgui
+alias cl := clib
 alias rc := rcli
 alias rg := rgui
 alias l  := lib
@@ -33,6 +36,12 @@ system-info:
 @sloc:
     tokei projects
 
+ccli: lib
+    cargo c --bin gol_cli
+
+cgui: lib
+    cargo c --bin gol_gui
+
 cli: lib
     cargo b --bin gol_cli
 
@@ -44,6 +53,9 @@ rcli: lib
 
 rgui: lib
     cargo r --bin gol_gui
+
+clib:
+    cargo c --lib
 
 lib:
     cargo b --lib
