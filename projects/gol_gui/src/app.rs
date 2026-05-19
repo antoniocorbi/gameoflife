@@ -14,13 +14,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // -- Constants: ----------------------------------------------------------
-const LOREM_IPSUM: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-const LOREM_IPSUM_LONG: &str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam various, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.";
 
 // -- Uses: ---------------------------------------------------------------
+use crate::constants;
 use egui::{RichText, Style};
 //use delegate::delegate;
 use egui::{
@@ -30,14 +26,16 @@ use egui::{
 };
 
 /// We derive Deserialize/Serialize so we can persist app state on shutdown.
-#[derive(serde::Deserialize, serde::Serialize)]
-#[serde(default)] // if we add new fields, give them default values when deserializing old state
+//#[derive(serde::Deserialize, serde::Serialize)]
+//#[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct GolApp {
     // Example stuff:
     label: String,
 
-    #[serde(skip)] // This how you opt-out of serialization of a field
+    //#[serde(skip)] // This how you opt-out of serialization of a field
     value: f32,
+
+    pub worlds: Option<Worlds>,
 }
 
 impl Default for GolApp {
@@ -46,6 +44,7 @@ impl Default for GolApp {
             // Example stuff:
             label: "Hello World!".to_owned(),
             value: 2.7,
+            worlds: None,
         }
     }
 }
@@ -58,11 +57,35 @@ impl GolApp {
 
         // Load previous app state (if any).
         // Note that you must enable the `persistence` feature for this to work.
-        if let Some(storage) = cc.storage {
-            eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
+        // if let Some(storage) = cc.storage {
+        //     eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
+        // } else {
+        //     Default::default()
+        // }
+        Default::default()
+    }
+
+    pub fn create_worlds(&mut self, wr: Rect, sr: Rect) {
+        self.worlds = Some(Worlds::new(wr, sr));
+    }
+
+    pub fn init_worlds(&mut self, sr: Rect) {
+        if self.worlds.is_none() {
+            let wr = egui::Rect::from_min_max(constants::WR_MIN.into(), constants::WR_MAX.into());
+            self.create_worlds(wr, sr);
+            // self.set_status_text(&format!("Worlds created"), egui::Color32::RED);
         } else {
-            Default::default()
+            // Update worlds screen_rect
+            self.worlds.as_mut().unwrap().update_screen_rect(sr);
         }
+    }
+
+    pub fn pos2_to_screen(&self, pos: Pos2) -> Pos2 {
+        self.worlds.as_ref().unwrap().pos2_to_screen(pos)
+    }
+
+    pub fn pos2_to_world(&self, pos: Pos2) -> Pos2 {
+        self.worlds.as_ref().unwrap().pos2_to_world(pos)
     }
 
     fn draw_grid(&mut self, painter: &egui::Painter, rect: egui::Rect) {
@@ -71,32 +94,44 @@ impl GolApp {
         let grid_spacing = 10.0; // Distancia entre líneas
         let grid_stroke = egui::Stroke::new(0.7, egui::Color32::LIGHT_BLUE); // Líneas finas y claras
 
+        let nx = (rect.width() / grid_spacing) as usize;
+        let ny = (rect.height() / grid_spacing) as usize;
+        // dbg!(nx);
+        // dbg!(ny);
+
         // Líneas verticales
         //let mut x = rect.left() + (grid_spacing - rect.left() % grid_spacing);
         let mut x = rect.left();
-        while x <= rect.right() {
+        //let mut nxi = 0;
+        let bottom = rect.bottom() - 7.0;
+        while x < rect.right() {
             painter.line_segment(
-                [egui::pos2(x, rect.top()), egui::pos2(x, rect.bottom())],
+                [egui::pos2(x, rect.top()), egui::pos2(x, bottom)],
                 grid_stroke,
             );
             x += grid_spacing;
+            //nxi += 1;
         }
 
         // Líneas horizontales
         //let mut y = rect.top() + (grid_spacing - rect.top() % grid_spacing);
         let mut y = rect.top();
-        while y <= rect.bottom() {
+        //let mut nyi = 0;
+        //let right = ((nx + 1) as f32) * grid_spacing;
+        let right = rect.right() - 4.0;
+        while y < rect.bottom() {
             painter.line_segment(
-                [egui::pos2(rect.left(), y), egui::pos2(rect.right(), y)],
+                [egui::pos2(rect.left(), y), egui::pos2(right, y)],
                 grid_stroke,
             );
             y += grid_spacing;
+            //nyi += 1;
         }
     }
 
     fn create_drawing_widget(&mut self, ui: &mut Ui) {
-        const CANVAS_W: f32 = 800.0;
-        const CANVAS_H: f32 = 600.0;
+        // const CANVAS_W: f32 = 800.0;
+        // const CANVAS_H: f32 = 600.0;
         let height_for_widgets = 40.0; // Espacio que necesitas abajo
         let scroll_height = ui.available_height() - height_for_widgets;
 
@@ -105,7 +140,7 @@ impl GolApp {
             .max_height(scroll_height) // Limitamos la altura del scroll
             .show(ui, |ui| {
                 // 1. Definimos el tamaño total de nuestro "papel" o lienzo
-                let canvas_size = egui::vec2(CANVAS_W, CANVAS_H);
+                let canvas_size = egui::vec2(constants::CANVAS_W, constants::CANVAS_H);
                 Frame::canvas(ui.style())
                     // .corner_radius(5.0)
                     .fill(Color32::from_rgb(20, 60, 100)) // Fondo azul
@@ -122,7 +157,7 @@ impl GolApp {
 
                         // If there are no worlds object defined,
                         // define it, else update screen_rect
-                        //self.init_worlds(response.rect);
+                        self.init_worlds(response.rect);
 
                         // Draw the GRID
                         // if self.grid {
@@ -170,6 +205,8 @@ impl GolApp {
                                 // let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
                                 // let wx = wpos.x;
                                 // let wy = wpos.y;
+
+                                println!("Screenpos: x[{}],y[{}]", pos.x, pos.y);
 
                                 // self.set_status_text(
                                 //     &format!(
@@ -273,9 +310,9 @@ impl GolApp {
 
 impl eframe::App for GolApp {
     /// Called by the framework to save state before shutdown.
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
-    }
+    // fn save(&mut self, storage: &mut dyn eframe::Storage) {
+    //     eframe::set_value(storage, eframe::APP_KEY, self);
+    // }
 
     /// Called each time the UI needs repainting, which may be many times per second.
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -334,13 +371,87 @@ impl eframe::App for GolApp {
     }
 }
 
+// ╔════════╗
+// ║ Worlds ║
+// ╚════════╝
+// -- : -------------------------------------------------------------------
+#[derive(Clone)]
+pub struct Worlds {
+    pub world_rect: Rect,
+    pub screen_rect: Rect,
+    pub w2s: emath::RectTransform,
+    pub s2w: emath::RectTransform,
+}
+
+impl Worlds {
+    fn new(wr: Rect, sr: Rect) -> Self {
+        let w2s = emath::RectTransform::from_to(wr, sr);
+        let s2w = w2s.inverse();
+
+        Self {
+            world_rect: wr,
+            screen_rect: sr,
+            w2s,
+            s2w,
+        }
+    }
+
+    pub fn update_screen_rect(&mut self, screen_rect: Rect) {
+        //println!("Update worlds sr & transforms");
+
+        // Store the canvas rect
+        self.screen_rect = screen_rect;
+
+        // Compute world2screen and screen2world transforms
+        self.w2s = emath::RectTransform::from_to(self.world_rect, self.screen_rect);
+        self.s2w = self.w2s.inverse();
+    }
+
+    pub fn pos2_to_screen(&self, pos: Pos2) -> Pos2 {
+        // if !self.world_rect.contains(pos) {
+        //     println!("pos: {:?} out of wr", pos);
+        // }
+        // Check that point x,y is inside its world_rect.
+        // assert!(self.world_rect.contains(pos));
+        self.w2s.transform_pos_clamped(pos)
+    }
+
+    pub fn pos2_to_world(&self, pos: Pos2) -> Pos2 {
+        // Check that point x,y is inside its screen_rect.
+        //assert!(self.screen_rect.contains(pos));
+        self.s2w.transform_pos_clamped(pos)
+    }
+
+    pub fn rect_to_screen(&self, rect: Rect) -> Rect {
+        // Check that 'rect' is inside its world_rect.
+        // assert!(self.world_rect.contains(rect.min));
+        // assert!(self.world_rect.contains(rect.max));
+        self.w2s.transform_rect(rect)
+    }
+
+    pub fn rect_to_world(&self, rect: Rect) -> Rect {
+        // Check that 'rect' is inside its screen_rect.
+        // assert!(self.screen_rect.contains(rect.min));
+        // assert!(self.screen_rect.contains(rect.max));
+        self.s2w.transform_rect(rect)
+    }
+}
+
 fn lorem_ipsum(ui: &mut egui::Ui) {
     ui.with_layout(
         egui::Layout::top_down(egui::Align::LEFT).with_cross_justify(true),
         |ui| {
-            ui.label(egui::RichText::new(LOREM_IPSUM_LONG).small().weak());
+            ui.label(
+                egui::RichText::new(constants::LOREM_IPSUM_LONG)
+                    .small()
+                    .weak(),
+            );
             ui.add(egui::Separator::default().grow(8.0));
-            ui.label(egui::RichText::new(LOREM_IPSUM_LONG).small().weak());
+            ui.label(
+                egui::RichText::new(constants::LOREM_IPSUM_LONG)
+                    .small()
+                    .weak(),
+            );
         },
     );
 }
