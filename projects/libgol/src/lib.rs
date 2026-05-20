@@ -90,6 +90,22 @@ impl GameOfLife {
         self.curr_gen[0].len()
     }
 
+    pub fn clean(&mut self) {
+        // for y in 0..self.nrows() {
+        //     for x in 0..self.ncols() {
+        //         self.set_cell(x, y, Cell::Unused);
+        //     }
+        // }
+
+        self.curr_gen.iter_mut().for_each(|r| {
+            r.iter_mut().for_each(|e| *e = Cell::Unused);
+        });
+    }
+
+    // self.curr_gen.clear();
+    // self.curr_gen.shrink_to_fit();
+    //self.curr_gen = vec![vec![Cell::Unused; constants::WR_MAX[1]]; constants::WR_MAX[0]];
+
     fn resize_next_gen(&mut self) {
         self.next_gen.clear();
         self.next_gen.shrink_to_fit();

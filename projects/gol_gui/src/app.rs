@@ -18,6 +18,7 @@
 // -- Uses: ---------------------------------------------------------------
 use crate::constants;
 use egui::{RichText, Style};
+use libgol::{Cell, FigureExt, GameOfLife};
 //use delegate::delegate;
 use egui::{
     emath::{self, RectTransform},
@@ -29,22 +30,33 @@ use egui::{
 //#[derive(serde::Deserialize, serde::Serialize)]
 //#[serde(default)] // if we add new fields, give them default values when deserializing old state
 pub struct GolApp {
+    // ╔═════════╗
+    // ║ Widgets ║
+    // ╚═════════╝
+
     // Example stuff:
     label: String,
 
-    //#[serde(skip)] // This how you opt-out of serialization of a field
-    value: f32,
-
+    // ╔════════════╗
+    // ║ Model data ║
+    // ╚════════════╝
     pub worlds: Option<Worlds>,
+    pub gol: Option<GameOfLife>,
 }
 
 impl Default for GolApp {
     fn default() -> Self {
+        let mut gol = Some(GameOfLife::new(
+            constants::WR_MAX[0] as usize,
+            constants::WR_MAX[1] as usize,
+        ));
+        gol.as_mut().unwrap().set_visuals('*', '.');
+
         Self {
             // Example stuff:
             label: "Hello World!".to_owned(),
-            value: 2.7,
             worlds: None,
+            gol,
         }
     }
 }
@@ -202,11 +214,14 @@ impl GolApp {
                         if response.clicked() {
                             //println!("¡Click izquierdo detectado en el Painter!");
                             if let Some(pos) = response.interact_pointer_pos() {
-                                // let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
-                                // let wx = wpos.x;
-                                // let wy = wpos.y;
+                                let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
+                                let wx = wpos.x;
+                                let wy = wpos.y;
 
-                                println!("Screenpos: x[{}],y[{}]", pos.x, pos.y);
+                                println!(
+                                    "Screenpos: x[{}],y[{}],wx[{}],wy[{}]",
+                                    pos.x, pos.y, wx, wy
+                                );
 
                                 // self.set_status_text(
                                 //     &format!(
@@ -347,10 +362,35 @@ impl eframe::App for GolApp {
                 ui.text_edit_singleline(&mut self.label);
             });
 
-            ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
-            if ui.button("Increment").clicked() {
-                self.value += 1.0;
-            }
+            ui.horizontal(|ui| {
+                // ui.add(egui::Slider::new(&mut self.grid_size, 1.0..=10.0).text("Grid size"));
+
+                if ui
+                    .button("Random Fill")
+                    .on_hover_text("Random fill the world.")
+                    .clicked()
+                {
+                    self.gol
+                        .as_mut()
+                        .expect("No GameOfLife object found")
+                        .random_fill(0.7);
+                    println!("{}\n", self.gol.as_ref().unwrap());
+                }
+
+                if ui
+                    .button("Clean")
+                    .on_hover_text("Clean the world.")
+                    .clicked()
+                {
+                    self.gol.as_mut().expect("No existing GameOfLife.").clean();
+                    println!("{}\n", self.gol.as_ref().unwrap());
+                }
+            });
+
+            // ui.add(egui::Slider::new(&mut self.value, 0.0..=10.0).text("value"));
+            // if ui.button("Increment").clicked() {
+            //     self.value += 1.0;
+            // }
 
             ui.separator();
 
