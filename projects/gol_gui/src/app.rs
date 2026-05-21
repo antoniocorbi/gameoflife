@@ -17,6 +17,7 @@
 
 // -- Uses: ---------------------------------------------------------------
 use crate::constants;
+use eframe::egui_wgpu::NativeAdapterSelectorMethod;
 use egui::{RichText, Style};
 use libgol::{Cell, FigureExt, GameOfLife};
 //use delegate::delegate;
@@ -100,43 +101,128 @@ impl GolApp {
         self.worlds.as_ref().unwrap().pos2_to_world(pos)
     }
 
+    // fn old_draw_grid(&mut self, painter: &egui::Painter, rect: egui::Rect) {
+    //     // 1. Gestionar grid-spacing muy pequeño
+    //     //let grid_spacing = self.grid_size * 3.0; // Distancia entre líneas
+    //     let grid_spacing = 10.0; // Distancia entre líneas
+    //     let grid_stroke = egui::Stroke::new(0.7, egui::Color32::LIGHT_BLUE); // Líneas finas y claras
+    //
+    //     let nx = (rect.width() / grid_spacing) as usize;
+    //     let ny = (rect.height() / grid_spacing) as usize;
+    //     // dbg!(nx);
+    //     // dbg!(ny);
+    //
+    //     // Líneas verticales
+    //     //let mut x = rect.left() + (grid_spacing - rect.left() % grid_spacing);
+    //     let mut x = rect.left();
+    //     //let mut nxi = 0;
+    //     let bottom = rect.bottom() - 7.0;
+    //     while x < rect.right() {
+    //         painter.line_segment(
+    //             [egui::pos2(x, rect.top()), egui::pos2(x, bottom)],
+    //             grid_stroke,
+    //         );
+    //         x += grid_spacing;
+    //         //nxi += 1;
+    //     }
+    //
+    //     // Líneas horizontales
+    //     //let mut y = rect.top() + (grid_spacing - rect.top() % grid_spacing);
+    //     let mut y = rect.top();
+    //     //let mut nyi = 0;
+    //     //let right = ((nx + 1) as f32) * grid_spacing;
+    //     let right = rect.right() - 4.0;
+    //     while y < rect.bottom() {
+    //         painter.line_segment(
+    //             [egui::pos2(rect.left(), y), egui::pos2(right, y)],
+    //             grid_stroke,
+    //         );
+    //         y += grid_spacing;
+    //         //nyi += 1;
+    //     }
+    // }
+
+    fn draw_box(
+        &mut self,
+        world_x: usize,
+        world_y: usize,
+        alive: bool,
+        painter: &egui::Painter,
+        rect: egui::Rect,
+    ) {
+        const MARGIN_X: f32 = 5.0;
+        const MARGIN_Y: f32 = 5.0;
+
+        // 1. Gestionar grid-spacing muy pequeño
+        //let grid_spacing = self.grid_size * 3.0; // Distancia entre líneas
+        let fill_color = if alive {
+            Color32::from_hex(constants::FG_COLOR).expect("Couldn't create live-being color.")
+        } else {
+            Color32::from_hex(constants::BG_COLOR).expect("Couldn't create dead-being color.")
+        };
+
+        let grid_spacing_x = rect.width() / (constants::WR_MAX[0] - constants::WR_MIN[0]);
+        let grid_spacing_y = rect.height() / (constants::WR_MAX[1] - constants::WR_MIN[1]);
+
+        let x = rect.left() + (world_x as f32 * grid_spacing_x) + MARGIN_X;
+        let y = rect.top() + (world_y as f32 * grid_spacing_y) + MARGIN_Y;
+        let w = grid_spacing_x - (2.0 * MARGIN_X);
+        let h = grid_spacing_y - (2.0 * MARGIN_Y);
+        let r = Rect::from_min_size([x, y].into(), [w, h].into());
+        let corner_radius = CornerRadius::ZERO;
+        let _ = painter.rect_filled(r, corner_radius, fill_color);
+    }
+
     fn draw_grid(&mut self, painter: &egui::Painter, rect: egui::Rect) {
         // 1. Gestionar grid-spacing muy pequeño
         //let grid_spacing = self.grid_size * 3.0; // Distancia entre líneas
-        let grid_spacing = 10.0; // Distancia entre líneas
-        let grid_stroke = egui::Stroke::new(0.7, egui::Color32::LIGHT_BLUE); // Líneas finas y claras
+        let line_color =
+            Color32::from_hex(constants::LINE_COLOR).expect("Couldn't create line color.");
+        let grid_stroke = egui::Stroke::new(0.7, line_color); // Líneas finas y claras
+        let grid_stroke_red = egui::Stroke::new(1.5, egui::Color32::RED); // Líneas finas y claras
 
-        let nx = (rect.width() / grid_spacing) as usize;
-        let ny = (rect.height() / grid_spacing) as usize;
+        let grid_spacing_x = rect.width() / (constants::WR_MAX[0] - constants::WR_MIN[0]);
+        let grid_spacing_y = rect.height() / (constants::WR_MAX[1] - constants::WR_MIN[1]);
+
+        // let nx = (rect.width() / grid_spacing) as usize;
+        // let ny = (rect.height() / grid_spacing) as usize;
         // dbg!(nx);
         // dbg!(ny);
 
         // Líneas verticales
         //let mut x = rect.left() + (grid_spacing - rect.left() % grid_spacing);
+        let bottom = rect.bottom();
         let mut x = rect.left();
-        //let mut nxi = 0;
-        let bottom = rect.bottom() - 7.0;
-        while x < rect.right() {
+        let xmax = rect.right();
+        while x < xmax {
             painter.line_segment(
                 [egui::pos2(x, rect.top()), egui::pos2(x, bottom)],
                 grid_stroke,
             );
-            x += grid_spacing;
+            x += grid_spacing_x;
             //nxi += 1;
         }
+        // Last vertical line
+        painter.line_segment(
+            [
+                egui::pos2(x - 0.005, rect.top()),
+                egui::pos2(x - 0.005, bottom),
+            ],
+            grid_stroke,
+        );
 
         // Líneas horizontales
         //let mut y = rect.top() + (grid_spacing - rect.top() % grid_spacing);
         let mut y = rect.top();
         //let mut nyi = 0;
         //let right = ((nx + 1) as f32) * grid_spacing;
-        let right = rect.right() - 4.0;
-        while y < rect.bottom() {
+        let right = rect.right();
+        while y <= rect.bottom() {
             painter.line_segment(
                 [egui::pos2(rect.left(), y), egui::pos2(right, y)],
                 grid_stroke,
             );
-            y += grid_spacing;
+            y += grid_spacing_y;
             //nyi += 1;
         }
     }
@@ -155,7 +241,10 @@ impl GolApp {
                 let canvas_size = egui::vec2(constants::CANVAS_W, constants::CANVAS_H);
                 Frame::canvas(ui.style())
                     // .corner_radius(5.0)
-                    .fill(Color32::from_rgb(20, 60, 100)) // Fondo azul
+                    //.fill(Color32::from_rgb(20, 60, 100)) // Fondo azul
+                    .fill(
+                        Color32::from_hex(constants::BG_COLOR).expect("Couldn't create bg color."),
+                    ) // Fondo azul
                     // .stroke(Stroke::new(1.5, Color32::LIGHT_RED)) // Borde negro
                     .show(ui, |ui| {
                         // self.ui_canvas(ui); // Llamamos a la lógica de dibujo
@@ -215,13 +304,18 @@ impl GolApp {
                             //println!("¡Click izquierdo detectado en el Painter!");
                             if let Some(pos) = response.interact_pointer_pos() {
                                 let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
-                                let wx = wpos.x;
-                                let wy = wpos.y;
+                                let wx = wpos.x as usize;
+                                let wy = wpos.y as usize;
+
+                                // let computed_screen_xy =
+                                //     self.pos2_to_screen([wpos.x, wpos.y].into());
 
                                 println!(
                                     "Screenpos: x[{}],y[{}],wx[{}],wy[{}]",
                                     pos.x, pos.y, wx, wy
                                 );
+
+                                self.draw_box(wx, wy, true, &painter, response.rect);
 
                                 // self.set_status_text(
                                 //     &format!(
@@ -295,13 +389,16 @@ impl GolApp {
                             ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(true));
                         }
 
-                        // // Update particles status
+                        // Update particles status
                         // self.run();
                         //
-                        // // Draw repeller
-                        // for r in &self.repellers {
-                        //     self.draw_repeller(r, &painter);
-                        // }
+                        // Draw lige beings
+                        for y in 0..self.gol.as_ref().unwrap().nrows() {
+                            for x in 0..self.gol.as_ref().unwrap().ncols() {
+                                let alive = self.gol.as_ref().unwrap().cell(x, y) == Cell::Used;
+                                self.draw_box(x, y, alive, &painter, response.rect);
+                            }
+                        }
 
                         //if self.repeller.is_some() {
                         //    self.draw_repeller(self.repeller.as_ref().unwrap(), &painter);

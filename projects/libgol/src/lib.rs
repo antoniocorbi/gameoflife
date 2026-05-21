@@ -117,7 +117,7 @@ impl GameOfLife {
         self.curr_gen[y][x] = status;
     }
 
-    pub fn cell(&mut self, x: usize, y: usize) -> Cell {
+    pub fn cell(&self, x: usize, y: usize) -> Cell {
         assert!(x < self.ncols() && y < self.nrows());
         self.curr_gen[y][x]
     }
