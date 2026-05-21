@@ -20,6 +20,7 @@ mod figure;
 
 // -- Uses: ---------------------------------------------------------------
 use std::fmt;
+use std::ops::Not;
 // The prelude import enables methods we use below, specifically
 // Rng::random, Rng::sample, SliceRandom::shuffle and IndexedRandom::choose.
 use rand::prelude::*;
@@ -55,6 +56,18 @@ pub struct GameOfLife {
 }
 
 // -- Impl: ---------------------------------------------------------------
+
+// Implementamos el trait Not para nuestro enum Estado
+impl Not for Cell {
+    type Output = Self; // El tipo que va a devolver la operación (en este caso, otro Estado)
+
+    fn not(self) -> Self::Output {
+        match self {
+            Cell::Used => Cell::Unused,
+            Cell::Unused => Cell::Used,
+        }
+    }
+}
 
 impl GameOfLife {
     pub fn new(nrows: usize, ncols: usize) -> Self {

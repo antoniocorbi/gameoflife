@@ -310,12 +310,14 @@ impl GolApp {
                                 // let computed_screen_xy =
                                 //     self.pos2_to_screen([wpos.x, wpos.y].into());
 
-                                println!(
-                                    "Screenpos: x[{}],y[{}],wx[{}],wy[{}]",
-                                    pos.x, pos.y, wx, wy
-                                );
+                                // println!(
+                                //     "Screenpos: x[{}],y[{}],wx[{}],wy[{}]",
+                                //     pos.x, pos.y, wx, wy
+                                // );
 
-                                self.draw_box(wx, wy, true, &painter, response.rect);
+                                let status = !self.gol.as_ref().unwrap().cell(wx, wy);
+                                self.gol.as_mut().unwrap().set_cell(wx, wy, status);
+                                //println!("{}\n", self.gol.as_ref().unwrap());
 
                                 // self.set_status_text(
                                 //     &format!(
@@ -471,7 +473,7 @@ impl eframe::App for GolApp {
                         .as_mut()
                         .expect("No GameOfLife object found")
                         .random_fill(0.7);
-                    println!("{}\n", self.gol.as_ref().unwrap());
+                    //println!("{}\n", self.gol.as_ref().unwrap());
                 }
 
                 if ui
@@ -480,7 +482,7 @@ impl eframe::App for GolApp {
                     .clicked()
                 {
                     self.gol.as_mut().expect("No existing GameOfLife.").clean();
-                    println!("{}\n", self.gol.as_ref().unwrap());
+                    //println!("{}\n", self.gol.as_ref().unwrap());
                 }
             });
 
