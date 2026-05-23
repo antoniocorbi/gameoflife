@@ -20,7 +20,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "eframe template",
+        "Game Of Life",
         native_options,
         Box::new(|cc| Ok(Box::new(gol_gui::GolApp::new(cc)))),
     )

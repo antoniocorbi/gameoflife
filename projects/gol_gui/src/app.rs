@@ -20,6 +20,7 @@ use crate::constants;
 use eframe::egui_wgpu::NativeAdapterSelectorMethod;
 use egui::{RichText, Style};
 use libgol::{Cell, FigureExt, GameOfLife};
+use std::time::Duration;
 //use delegate::delegate;
 use egui::{
     emath::{self, RectTransform},
@@ -43,6 +44,7 @@ pub struct GolApp {
     // ╚════════════╝
     pub worlds: Option<Worlds>,
     pub gol: Option<GameOfLife>,
+    pub evolving: bool,
 }
 
 impl Default for GolApp {
@@ -55,9 +57,10 @@ impl Default for GolApp {
 
         Self {
             // Example stuff:
-            label: "Hello World!".to_owned(),
+            label: "Game Of Life!".to_owned(),
             worlds: None,
             gol,
+            evolving: false,
         }
     }
 }
@@ -391,16 +394,24 @@ impl GolApp {
                             ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(true));
                         }
 
-                        // Update particles status
-                        // self.run();
-                        //
-                        // Draw lige beings
+                        // Update simmulation if requested
+                        if self.evolving {
+                            self.gol
+                                .as_mut()
+                                .expect("No existing GameOfLife.")
+                                .compute_next_gen();
+                        }
+
+                        // Draw life-beings
                         for y in 0..self.gol.as_ref().unwrap().nrows() {
                             for x in 0..self.gol.as_ref().unwrap().ncols() {
                                 let alive = self.gol.as_ref().unwrap().cell(x, y) == Cell::Used;
                                 self.draw_box(x, y, alive, &painter, response.rect);
                             }
                         }
+
+                        // Sleep a bit
+                        std::thread::sleep(Duration::from_micros(constants::SLEEP));
 
                         //if self.repeller.is_some() {
                         //    self.draw_repeller(self.repeller.as_ref().unwrap(), &painter);
@@ -454,11 +465,17 @@ impl eframe::App for GolApp {
 
         egui::CentralPanel::default().show_inside(ui, |ui| {
             // The central panel the region left after adding TopPanel's and SidePanel's
-            ui.heading("eframe template");
+            ui.heading("Game Of Life");
 
             ui.horizontal(|ui| {
-                ui.label("Write something: ");
-                ui.text_edit_singleline(&mut self.label);
+                ui.colored_label(
+                    Color32::RED,
+                    format!(
+                        "Generation: {}",
+                        self.gol.as_ref().unwrap().generations().to_string()
+                    ),
+                );
+                //ui.text_edit_singleline(&mut self.label);
             });
 
             ui.horizontal(|ui| {
@@ -473,6 +490,11 @@ impl eframe::App for GolApp {
                         .as_mut()
                         .expect("No GameOfLife object found")
                         .random_fill(0.7);
+
+                    self.gol
+                        .as_mut()
+                        .expect("No GameOfLife object found")
+                        .set_generations(0);
                     //println!("{}\n", self.gol.as_ref().unwrap());
                 }
 
@@ -483,6 +505,19 @@ impl eframe::App for GolApp {
                 {
                     self.gol.as_mut().expect("No existing GameOfLife.").clean();
                     //println!("{}\n", self.gol.as_ref().unwrap());
+                }
+
+                // if ui.button("Play/Pause").on_hover_text("Evolve.").clicked() {
+                //     self.evolving = !self.evolving;
+                //     //self.gol.as_mut().expect("No existing GameOfLife.");
+                //     //println!("{}\n", self.gol.as_ref().unwrap());
+                // }
+
+                ui.checkbox(&mut self.evolving, "Play");
+
+                if self.gol.as_ref().unwrap().empty() {
+                    self.evolving = false;
+                    //println!("VACIO");
                 }
             });
 

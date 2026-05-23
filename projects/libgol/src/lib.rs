@@ -90,6 +90,10 @@ impl GameOfLife {
         self.ngen
     }
 
+    pub fn set_generations(&mut self, ng: usize) {
+        self.ngen = ng;
+    }
+
     pub fn set_visuals(&mut self, used: char, unused: char) {
         self.used_char = used;
         self.unused_char = unused;
@@ -103,6 +107,12 @@ impl GameOfLife {
         self.curr_gen[0].len()
     }
 
+    pub fn empty(&self) -> bool {
+        self.curr_gen
+            .iter()
+            .all(|r| r.iter().all(|&e| e == Cell::Unused))
+    }
+
     pub fn clean(&mut self) {
         // for y in 0..self.nrows() {
         //     for x in 0..self.ncols() {
@@ -110,9 +120,17 @@ impl GameOfLife {
         //     }
         // }
 
+        // Clear current geneneration
         self.curr_gen.iter_mut().for_each(|r| {
             r.iter_mut().for_each(|e| *e = Cell::Unused);
         });
+
+        // Clear next geneneration
+        self.next_gen.iter_mut().for_each(|r| {
+            r.iter_mut().for_each(|e| *e = Cell::Unused);
+        });
+
+        self.ngen = 0;
     }
 
     // self.curr_gen.clear();
