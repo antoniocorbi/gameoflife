@@ -47,6 +47,8 @@ pub struct GolApp {
     pub evolving: bool,
     pub fg_color: [u8; 3],
     pub bg_color: [u8; 3],
+    pub randmoness: f64,
+    pub speed: f32,
 }
 
 impl Default for GolApp {
@@ -79,6 +81,8 @@ impl Default for GolApp {
             evolving: false,
             fg_color,
             bg_color,
+            randmoness: 0.3,
+            speed: 1.0,
         }
     }
 }
@@ -432,7 +436,9 @@ impl GolApp {
                         }
 
                         // Sleep a bit
-                        std::thread::sleep(Duration::from_micros(constants::SLEEP));
+                        std::thread::sleep(Duration::from_micros(
+                            (constants::SLEEP as f32 / self.speed) as u64,
+                        ));
 
                         //if self.repeller.is_some() {
                         //    self.draw_repeller(self.repeller.as_ref().unwrap(), &painter);
@@ -496,12 +502,32 @@ impl eframe::App for GolApp {
                         self.gol.as_ref().unwrap().generations().to_string()
                     ),
                 );
+
                 ui.separator();
+
                 ui.label("BG: ");
                 egui::widgets::color_picker::color_edit_button_srgb(ui, &mut self.bg_color);
                 ui.label("FG: ");
                 egui::widgets::color_picker::color_edit_button_srgb(ui, &mut self.fg_color);
                 //ui.text_edit_singleline(&mut self.label);
+
+                ui.separator();
+
+                ui.colored_label(Color32::GREEN, "Randomness:");
+                ui.add(
+                    egui::DragValue::new(&mut self.randmoness)
+                        .range(0.125..=1.0)
+                        .clamp_existing_to_range(true)
+                        .speed(0.01),
+                );
+
+                ui.colored_label(Color32::GREEN, "Speed:");
+                ui.add(
+                    egui::DragValue::new(&mut self.speed)
+                        .range(0.125..=10.0)
+                        .clamp_existing_to_range(true)
+                        .speed(0.1),
+                );
             });
 
             ui.horizontal(|ui| {
@@ -515,7 +541,7 @@ impl eframe::App for GolApp {
                     self.gol
                         .as_mut()
                         .expect("No GameOfLife object found")
-                        .random_fill(0.7);
+                        .random_fill(self.randmoness);
 
                     self.gol
                         .as_mut()
