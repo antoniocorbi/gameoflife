@@ -45,10 +45,26 @@ pub struct GolApp {
     pub worlds: Option<Worlds>,
     pub gol: Option<GameOfLife>,
     pub evolving: bool,
+    pub fg_color: [u8; 3],
+    pub bg_color: [u8; 3],
 }
 
 impl Default for GolApp {
     fn default() -> Self {
+        let bg_color = Color32::from_hex(constants::BG_COLOR).expect("Couldn't create BG color.");
+        let bg_rgb = &bg_color.to_array();
+        let mut bg_color: [u8; 3] = [0; 3];
+        bg_color[0] = bg_rgb[0];
+        bg_color[1] = bg_rgb[1];
+        bg_color[2] = bg_rgb[2];
+
+        let fg_color = Color32::from_hex(constants::FG_COLOR).expect("Couldn't create FG color.");
+        let fg_rgb = &fg_color.to_array();
+        let mut fg_color: [u8; 3] = [0; 3];
+        fg_color[0] = fg_rgb[0];
+        fg_color[1] = fg_rgb[1];
+        fg_color[2] = fg_rgb[2];
+
         let mut gol = Some(GameOfLife::new(
             constants::WR_MAX[0] as usize,
             constants::WR_MAX[1] as usize,
@@ -61,6 +77,8 @@ impl Default for GolApp {
             worlds: None,
             gol,
             evolving: false,
+            fg_color,
+            bg_color,
         }
     }
 }
@@ -159,9 +177,9 @@ impl GolApp {
         // 1. Gestionar grid-spacing muy pequeño
         //let grid_spacing = self.grid_size * 3.0; // Distancia entre líneas
         let fill_color = if alive {
-            Color32::from_hex(constants::FG_COLOR).expect("Couldn't create live-being color.")
+            Color32::from_rgb(self.fg_color[0], self.fg_color[1], self.fg_color[2])
         } else {
-            Color32::from_hex(constants::BG_COLOR).expect("Couldn't create dead-being color.")
+            Color32::from_rgb(self.bg_color[0], self.bg_color[1], self.bg_color[2])
         };
 
         let grid_spacing_x = rect.width() / (constants::WR_MAX[0] - constants::WR_MIN[0]);
@@ -245,9 +263,12 @@ impl GolApp {
                 Frame::canvas(ui.style())
                     // .corner_radius(5.0)
                     //.fill(Color32::from_rgb(20, 60, 100)) // Fondo azul
-                    .fill(
-                        Color32::from_hex(constants::BG_COLOR).expect("Couldn't create bg color."),
-                    ) // Fondo azul
+                    // Fondo
+                    .fill(Color32::from_rgb(
+                        self.bg_color[0],
+                        self.bg_color[1],
+                        self.bg_color[2],
+                    ))
                     // .stroke(Stroke::new(1.5, Color32::LIGHT_RED)) // Borde negro
                     .show(ui, |ui| {
                         // self.ui_canvas(ui); // Llamamos a la lógica de dibujo
@@ -475,6 +496,11 @@ impl eframe::App for GolApp {
                         self.gol.as_ref().unwrap().generations().to_string()
                     ),
                 );
+                ui.separator();
+                ui.label("BG: ");
+                egui::widgets::color_picker::color_edit_button_srgb(ui, &mut self.bg_color);
+                ui.label("FG: ");
+                egui::widgets::color_picker::color_edit_button_srgb(ui, &mut self.fg_color);
                 //ui.text_edit_singleline(&mut self.label);
             });
 
