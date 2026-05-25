@@ -335,6 +335,9 @@ impl GolApp {
                                 let wx = wpos.x as usize;
                                 let wy = wpos.y as usize;
 
+                                let status = !self.gol.as_ref().unwrap().cell(wx, wy);
+                                self.gol.as_mut().unwrap().set_cell(wx, wy, status);
+
                                 // let computed_screen_xy =
                                 //     self.pos2_to_screen([wpos.x, wpos.y].into());
 
@@ -343,8 +346,6 @@ impl GolApp {
                                 //     pos.x, pos.y, wx, wy
                                 // );
 
-                                let status = !self.gol.as_ref().unwrap().cell(wx, wy);
-                                self.gol.as_mut().unwrap().set_cell(wx, wy, status);
                                 //println!("{}\n", self.gol.as_ref().unwrap());
 
                                 // self.set_status_text(
@@ -375,11 +376,32 @@ impl GolApp {
                         if response.dragged_by(PointerButton::Primary) {
                             // Obtenemos la posición actual del puntero
                             if let Some(pos) = response.interact_pointer_pos() {
-                                // let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
-                                // let wx = wpos.x;
-                                // let wy = wpos.y;
-                                let ctx = ui.ctx();
-                                ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(false));
+                                static mut WX_LAST: usize = 0;
+                                static mut WY_LAST: usize = 0;
+                                let wpos = self.worlds.as_ref().unwrap().pos2_to_world(pos);
+                                let wx = wpos.x as usize;
+                                let wy = wpos.y as usize;
+
+                                // Hide Mouse
+                                // let ctx = ui.ctx();
+                                // ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(false));
+
+                                unsafe {
+                                    // dbg!(wx);
+                                    // dbg!(WX_LAST);
+                                    //
+                                    // dbg!(wy);
+                                    // dbg!(WY_LAST);
+
+                                    if wx != WX_LAST || wy != WY_LAST {
+                                        WX_LAST = wx;
+                                        WY_LAST = wy;
+                                        let status = !self.gol.as_ref().unwrap().cell(wx, wy);
+                                        self.gol.as_mut().unwrap().set_cell(wx, wy, status);
+                                    }
+                                }
+                                // let status = !self.gol.as_ref().unwrap().cell(wx, wy);
+                                // self.gol.as_mut().unwrap().set_cell(wx, wy, status);
 
                                 // Dibujamos un círculo donde esté el ratón mientras arrastramos
                                 //  painter.circle_filled(pos, 2.0, Color32::LIGHT_RED);
@@ -387,36 +409,14 @@ impl GolApp {
                                 // También puedes obtener cuánto se ha movido desde el frame anterior
                                 // let delta = response.drag_delta();
                                 // println!("Moviendo: {:?}", delta);
-
-                                // if self.psystems.len() == 0 {
-                                //     // First psystem, create it
-                                //     let wr = Rect::from_min_max(
-                                //         constants::WR_MIN.into(),
-                                //         constants::WR_MAX.into(),
-                                //     );
-                                //     let ps = ParticleSystem::new(
-                                //         constants::NPARTICLES,
-                                //         wx,
-                                //         wy,
-                                //         wr,
-                                //         self.particle_size,
-                                //         self.particle_mass,
-                                //     );
-                                //     self.psystems.push(ps);
-                                // } else {
-                                //     // Add new particle to last ParticleSystem
-                                //     let p = Particle::new(wx, wy, self.particle_size);
-                                //     //dbg!(p);
-                                //     let ps = self.psystems.last_mut().unwrap();
-                                //     ps.add_particle(&p);
-                                // }
                             }
                         }
 
                         if response.drag_stopped_by(PointerButton::Primary) {
-                            let ctx = ui.ctx();
-                            // Útil si el usuario estaba arrastrando y soltó el botón
-                            ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(true));
+                            // Show mouse
+                            // let ctx = ui.ctx();
+                            // // Útil si el usuario estaba arrastrando y soltó el botón
+                            // ctx.send_viewport_cmd(egui::ViewportCommand::CursorVisible(true));
                         }
 
                         // Update simmulation if requested
