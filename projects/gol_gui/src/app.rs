@@ -551,6 +551,18 @@ impl eframe::App for GolApp {
                 }
 
                 if ui
+                    .button("Invert")
+                    .on_hover_text("Invert the world's population.")
+                    .clicked()
+                {
+                    self.gol
+                        .as_mut()
+                        .expect("No existing GameOfLife.")
+                        .invert_population();
+                    //println!("{}\n", self.gol.as_ref().unwrap());
+                }
+
+                if ui
                     .button("Clean")
                     .on_hover_text("Clean the world.")
                     .clicked()

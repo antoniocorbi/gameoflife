@@ -169,6 +169,19 @@ impl GameOfLife {
         }
     }
 
+    pub fn invert_population(&mut self) {
+        // Clear next geneneration
+        self.next_gen.iter_mut().for_each(|r| {
+            r.iter_mut().for_each(|e| *e = Cell::Unused);
+        });
+
+        for y in 0..self.nrows() {
+            for x in 0..self.ncols() {
+                self.set_cell(x, y, !self.curr_gen[y][x]);
+            }
+        }
+    }
+
     pub fn neighbors(&self, x: usize, y: usize) -> Vec<Neighbor> {
         assert!(x < self.ncols() && y < self.nrows());
 
