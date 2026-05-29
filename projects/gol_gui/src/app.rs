@@ -393,11 +393,17 @@ impl GolApp {
                                     // dbg!(wy);
                                     // dbg!(WY_LAST);
 
-                                    if wx != WX_LAST || wy != WY_LAST {
-                                        WX_LAST = wx;
-                                        WY_LAST = wy;
-                                        let status = !self.gol.as_ref().unwrap().cell(wx, wy);
-                                        self.gol.as_mut().unwrap().set_cell(wx, wy, status);
+                                    // If coords inside map
+                                    if wx < self.gol.as_ref().unwrap().ncols()
+                                        && wy < self.gol.as_ref().unwrap().nrows()
+                                    {
+                                        // If mouse cursor has moved
+                                        if wx != WX_LAST || wy != WY_LAST {
+                                            WX_LAST = wx;
+                                            WY_LAST = wy;
+                                            let status = !self.gol.as_ref().unwrap().cell(wx, wy);
+                                            self.gol.as_mut().unwrap().set_cell(wx, wy, status);
+                                        }
                                     }
                                 }
                                 // let status = !self.gol.as_ref().unwrap().cell(wx, wy);

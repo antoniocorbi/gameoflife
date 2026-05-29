@@ -114,23 +114,33 @@ impl GameOfLife {
     }
 
     pub fn clean(&mut self) {
-        // for y in 0..self.nrows() {
-        //     for x in 0..self.ncols() {
-        //         self.set_cell(x, y, Cell::Unused);
-        //     }
-        // }
+        // Clear current geneneration
+        self.clean_curr_gen();
+        // self.curr_gen.iter_mut().for_each(|r| {
+        //     r.iter_mut().for_each(|e| *e = Cell::Unused);
+        // });
 
+        // Clear next geneneration
+        self.clean_next_gen();
+        // self.next_gen.iter_mut().for_each(|r| {
+        //     r.iter_mut().for_each(|e| *e = Cell::Unused);
+        // });
+
+        self.ngen = 0;
+    }
+
+    fn clean_curr_gen(&mut self) {
         // Clear current geneneration
         self.curr_gen.iter_mut().for_each(|r| {
             r.iter_mut().for_each(|e| *e = Cell::Unused);
         });
+    }
 
-        // Clear next geneneration
+    fn clean_next_gen(&mut self) {
+        // Clear current geneneration
         self.next_gen.iter_mut().for_each(|r| {
             r.iter_mut().for_each(|e| *e = Cell::Unused);
         });
-
-        self.ngen = 0;
     }
 
     // self.curr_gen.clear();
@@ -149,6 +159,7 @@ impl GameOfLife {
     }
 
     pub fn cell(&self, x: usize, y: usize) -> Cell {
+        //dbg!(y);
         assert!(x < self.ncols() && y < self.nrows());
         self.curr_gen[y][x]
     }
@@ -171,9 +182,10 @@ impl GameOfLife {
 
     pub fn invert_population(&mut self) {
         // Clear next geneneration
-        self.next_gen.iter_mut().for_each(|r| {
-            r.iter_mut().for_each(|e| *e = Cell::Unused);
-        });
+        self.clean_next_gen();
+        // self.next_gen.iter_mut().for_each(|r| {
+        //     r.iter_mut().for_each(|e| *e = Cell::Unused);
+        // });
 
         for y in 0..self.nrows() {
             for x in 0..self.ncols() {
