@@ -32,8 +32,10 @@ pub const CANVAS_H: f32 = 768.0;
 pub const BG_COLOR_BLUE: &str = "#143c64";
 pub const BG_COLOR_W95: &str = "#008080"; // W95
 pub const BG_COLOR_WINE: &str = "#9B4F62"; // Wine
-pub const BG_COLOR: &str = BG_COLOR_WINE;
-pub const FG_COLOR: &str = "#FDFBF7"; // Blanco Lino
+pub const BG_COLOR: &str = BG_COLOR_W95;
+pub const FG_COLOR_TOMATO: &str = "#FF6347"; // Blanco Lino
+pub const FG_COLOR_CLEAR: &str = "#FDFBF7"; // Blanco Lino
+pub const FG_COLOR: &str = FG_COLOR_TOMATO; // Blanco Lino
 pub const LINE_COLOR: &str = "#00E5FF"; // Cian Eléctrico
 
 // Delta time for status bar update.
