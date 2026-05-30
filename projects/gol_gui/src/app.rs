@@ -488,6 +488,25 @@ impl eframe::App for GolApp {
                         if ui.button("Quit").clicked() {
                             ui.send_viewport_cmd(egui::ViewportCommand::Close);
                         }
+                        ui.separator();
+                        ui.add_space(8.0);
+                        if ui.button("Open file…").clicked() {
+                            let path = rfd::FileDialog::new()
+                                .pick_file()
+                                .expect("Problem opening file.");
+                            if let Some(fname) = path.to_str() {
+                                self.gol.as_mut().unwrap().load(fname);
+                            }
+                        }
+                        if ui.button("Save file…").clicked() {
+                            let path = rfd::FileDialog::new()
+                                .pick_file()
+                                .expect("Problem opening file.");
+                            if let Some(fname) = path.to_str() {
+                                self.gol.as_ref().unwrap().save(fname);
+                            }
+                        }
+                        ui.separator();
                     });
                     ui.add_space(16.0);
                 }

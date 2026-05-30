@@ -22,6 +22,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 delegate = "0.13.5"
 rand = { version = "0.10.1", features = ["std", "std_rng"] }
 signals2 = "0.3.3"
+rfd = "0.17.2"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
