@@ -488,8 +488,8 @@ impl eframe::App for GolApp {
                         if ui.button("Quit").clicked() {
                             ui.send_viewport_cmd(egui::ViewportCommand::Close);
                         }
+                        ui.add_space(4.0);
                         ui.separator();
-                        ui.add_space(8.0);
                         if ui.button("Open file…").clicked() {
                             let path = rfd::FileDialog::new()
                                 .pick_file()
