@@ -13,9 +13,9 @@ targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown"]
 
 [dependencies]
 libgol = { path = "../libgol" }
-egui = "0.34.3"
-eframe = { version = "0.34.3", features = ["persistence"] }
-log = "0.4.30"
+egui = "0.35.0"
+eframe = { version = "0.35.0", features = ["persistence"] }
+log = "0.4.33"
 
 # You only need serde if you want app persistence:
 serde = { version = "1.0.228", features = ["derive"] }
@@ -26,12 +26,12 @@ rfd = "0.17.2"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-env_logger = "0.11.10"
+env_logger = "0.11.11"
 
 # web:
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen-futures = "0.4.72"
-web-sys = "0.3.99"              # to access the DOM (to hide the loading text)
+wasm-bindgen-futures = "0.4.76"
+web-sys = "0.3.103"              # to access the DOM (to hide the loading text)
 
 [profile.release]
 opt-level = 2 # fast and small wasm
