@@ -13,14 +13,14 @@ targets = ["x86_64-unknown-linux-gnu", "wasm32-unknown-unknown"]
 
 [dependencies]
 libgol = { path = "../libgol" }
-egui = "0.35.0"
-eframe = { version = "0.35.0", features = ["persistence"] }
-log = "0.4.33"
+egui = "0.36.0"
+eframe = { version = "0.36.0", features = ["persistence"] }
+log = "0.4.34"
 
 # You only need serde if you want app persistence:
-serde = { version = "1.0.228", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
 delegate = "0.13.5"
-rand = { version = "0.10.1", features = ["std", "std_rng"] }
+rand = { version = "0.10.3", features = ["std", "std_rng"] }
 signals2 = "0.3.3"
 rfd = "0.17.2"
 
@@ -30,8 +30,8 @@ env_logger = "0.11.11"
 
 # web:
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen-futures = "0.4.76"
-web-sys = "0.3.103"              # to access the DOM (to hide the loading text)
+wasm-bindgen-futures = "0.4.79"
+web-sys = "0.3.106"              # to access the DOM (to hide the loading text)
 
 [profile.release]
 opt-level = 2 # fast and small wasm
